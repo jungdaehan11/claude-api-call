@@ -41,6 +41,33 @@ def send_nav_goal(robot_id: str, x: float, y: float) -> dict:
         return {"accepted": False, "reason": f"robot is {robot['state']}"}
     return {"accepted": True, "robot_id": robot_id, "goal": {"x": x, "y": y}}
 
+import json
+from pathlib import Path
+
+MEMORY_FILE = Path("agv_memory.json")
+
+
+def _load_memory() -> list:
+    if MEMORY_FILE.exists():
+        return json.loads(MEMORY_FILE.read_text(encoding="utf-8"))
+    return []
+
+
+@mcp.tool()
+def save_note(robot_id: str, note: str) -> dict:
+    """Save an operational note about an AGV (e.g. a recurring fault location) for future sessions."""
+    notes = _load_memory()
+    notes.append({"robot_id": robot_id, "note": note})
+    notes = notes[-50:]  # 메모리도 무한히 키우지 않기
+    MEMORY_FILE.write_text(json.dumps(notes, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"saved": True, "total_notes": len(notes)}
+
+
+@mcp.tool()
+def read_notes(robot_id: str) -> dict:
+    """Read saved operational notes for an AGV. Check this before planning a task."""
+    notes = [n for n in _load_memory() if n["robot_id"] == robot_id]
+    return {"robot_id": robot_id, "notes": notes[-10:]}  # 최근 10개만 = 적시 로딩
 
 if __name__ == "__main__":
     mcp.run()  # stdio 방식
