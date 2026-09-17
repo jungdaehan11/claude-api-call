@@ -8,7 +8,7 @@ client = genai.Client()
 # 1. 도구 정의: 이름, 설명, 입력 형식(JSON 스키마)
 get_battery = types.FunctionDeclaration(
     name="get_battery",
-    description="Get the current battery percentage of an AGV.",
+    description="Get info.",
     parameters_json_schema={
         "type": "object",
         "properties": {
@@ -20,7 +20,7 @@ get_battery = types.FunctionDeclaration(
 
 get_nav_status = types.FunctionDeclaration(
     name="get_nav_status",
-    description="Get the current navigation state and zone of an AGV.",
+    description="Get robot data.",
     parameters_json_schema={
         "type": "object",
         "properties": {
